@@ -1,8 +1,8 @@
 - name: Disable redis module
-  ansible.builtin.command: /usr/bin/dnf module disable redis -y
+  ansible.builtin.shell: dnf module disable redis -y
 
 - name: Enable redis:7 module
-  ansible.builtin.command: /usr/bin/dnf module enable redis:7 -y
+  ansible.builtin.shell: dnf module enable redis:7 -y
 
 - name: Install mongodb
   ansible.builtin.dnf:
@@ -12,8 +12,8 @@
 - name: Replace old hostname with new hostname (requires Ansible >= 2.4)
   ansible.builtin.replace:
     path: /etc/redis/redis.conf
-    regexp: '127\.0\.0\.1'
-    replace: '0\.0\.0\.0'
+    regexp: '127.0.0.1'
+    replace: '0.0.0.0'
 
 - name: Replace old hostname with new hostname (requires Ansible >= 2.4)
   ansible.builtin.replace:

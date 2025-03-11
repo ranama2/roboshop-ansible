@@ -1,5 +1,5 @@
 - name: Disable nodejs module
-  ansible.builtin.command: /usr/bin/dnf module disable nodejs -y
+  ansible.builtin.shell: dnf module disable nodejs -y
 
 - name: Enable nodejs:20 module
   ansible.builtin.command: /usr/bin/dnf module enable nodejs:20 -y
@@ -38,3 +38,13 @@
     state: restarted
     daemon_reload: true
     name: cart
+
+- name: Enable cart
+  ansible.builtin.service:
+    name: cart
+    enabled: yes
+
+- name: Start cart
+  ansible.builtin.systemd_service:
+    name: cart
+    state: started

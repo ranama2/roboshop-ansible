@@ -26,13 +26,13 @@
 
 # Lets download the dependencies & build the application
 - name: cd /app
-  ansible.builtin.command: /usr/bin/cd /app
+  ansible.builtin.shell: cd /app
 
 - name: mvn clean package
-  ansible.builtin.command: /usr/bin/mvn clean package
+  ansible.builtin.shell: mvn clean package
 
 - name: mv target/shipping-1.0.jar shipping.jar
-  ansible.builtin.command: /usr/bin/mv target/shipping-1.0.jar shipping.jar
+  ansible.builtin.shell: mv target/shipping-1.0.jar shipping.jar
 
 - name: Copy shipping.service file
   ansible.builtin.copy:
@@ -55,21 +55,21 @@
     name: shipping
     state: started
 
-- name: Install mongosh
+- name: Install mysql
   ansible.builtin.dnf:
     name: mysql
     state: installed
 
 - name: Load Schema, Schema in database is the structure to it like what tables to be created and their necessary application layouts.
-  ansible.builtin.command: /usr/bin/mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/schema.sql
+  ansible.builtin.shell: mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/schema.sql
 
 - name: Create app user, MySQL expects a password authentication, Hence we need to create the user in mysql database for shipping app to connect.
-  ansible.builtin.command: /usr/bin/mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/app-user.sql
+  ansible.builtin.shell: mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/app-user.sql
 
 - name: Load Master Data, This includes the data of all the countries and their cities with distance to those cities.
-  ansible.builtin.command: /usr/bin/mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/master-data.sql
+  ansible.builtin.shell: mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/master-data.sql
 
-- name: Start redis
+- name: Restart shipping
   ansible.builtin.systemd_service:
     name: shipping
     state: restarted

@@ -1,8 +1,8 @@
 - name: Disable nodejs module
-  ansible.builtin.command: /usr/bin/dnf module disable nodejs -y
+  ansible.builtin.shell: dnf module disable nodejs -y
 
 - name: Enable nodejs:20 module
-  ansible.builtin.command: /usr/bin/dnf module enable nodejs:20 -y
+  ansible.builtin.shell: dnf module enable nodejs:20 -y
 
 - name: Install nodejs
   ansible.builtin.dnf:
@@ -24,17 +24,27 @@
     dest: /app
     remote_src: yes
 
-- name: Install catalogue packages
+- name: Install user packages
   community.general.npm:
     path: /app
 
-- name: Copy cart.service file
+- name: Copy user.service file
   ansible.builtin.copy:
-    src: cart.service
-    dest: /etc/systemd/system/cart.service
+    src: user.service
+    dest: /etc/systemd/system/user.service
 
 - name: Restart service user, in all cases, also issue daemon-reload to pick up config changes
   ansible.builtin.systemd_service:
     state: restarted
     daemon_reload: true
     name: user
+
+- name: Enable user
+  ansible.builtin.service:
+    name: user
+    enabled: yes
+
+- name: Start user
+  ansible.builtin.systemd_service:
+    name: user
+    state: started
