@@ -1,0 +1,69 @@
+- name: Disable nginx module
+  ansible.builtin.shell: dnf module disable nginx -y
+
+- name: Enable nginx 1.24
+  ansible.builtin.shell: dnf module enable nginx:1.24 -y
+
+- name: Install nginx
+  ansible.builtin.dnf:
+    name: nginx
+    state: installed
+
+- name: Start nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: started
+
+- name: Copy nginx.conf file
+  ansible.builtin.copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+
+- name: Recursively remove /usr/share/nginx/html/* directory
+  ansible.builtin.file:
+    path: /usr/share/nginx/html
+    state: absent
+
+- name: Create app content
+  ansible.builtin.file:
+    path: /usr/share/nginx/html
+    state: directory
+
+- name: Download and extract online content
+  ansible.builtin.unarchive:
+    src: https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
+    dest: /usr/share/nginx/html
+    remote_src: yes
+
+- name: Restart nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+
+
+
+
+
+
+
+
+
+
+#cp nginx.conf /etc/nginx/nginx.conf
+#
+#print_head Install and start nginx
+#configure_and_install_component &>> $log_file
+#enable_and_start_component &>> $log_file
+#
+#print_head Configure nginx
+#rm -rf /usr/share/nginx/html/* &>> $log_file
+#
+#curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>> $log_file
+#
+#cd /usr/share/nginx/html
+#unzip /tmp/frontend.zip
+#
+#
+#
+#print_head Restart nginx
+#restart_component &>> $log_file
