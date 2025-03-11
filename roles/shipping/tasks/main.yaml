@@ -1,0 +1,78 @@
+#- name: Disable nodejs module
+#  ansible.builtin.command: /usr/bin/dnf module disable nodejs -y
+#
+#- name: Enable nodejs:20 module
+#  ansible.builtin.command: /usr/bin/dnf module enable nodejs:20 -y
+
+- name: Install maven
+  ansible.builtin.dnf:
+    name: maven
+    state: installed
+
+- name: Add the user 'roboshop'
+  ansible.builtin.user:
+    name: roboshop
+
+- name: Create app directory
+  ansible.builtin.file:
+    path: /app
+    state: directory
+
+- name: Download and extract online content
+  ansible.builtin.unarchive:
+    src: https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip
+    dest: /app
+    remote_src: yes
+
+# Lets download the dependencies & build the application
+- name: cd /app
+  ansible.builtin.command: /usr/bin/cd /app
+
+- name: mvn clean package
+  ansible.builtin.command: /usr/bin/mvn clean package
+
+- name: mv target/shipping-1.0.jar shipping.jar
+  ansible.builtin.command: /usr/bin/mv target/shipping-1.0.jar shipping.jar
+
+- name: Copy shipping.service file
+  ansible.builtin.copy:
+    src: shipping.service
+    dest: /etc/systemd/system/shipping.service
+
+- name: Restart service shipping, in all cases, also issue daemon-reload to pick up config changes
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    name: shipping
+
+- name: Enable redis
+  ansible.builtin.service:
+    name: shipping
+    enabled: yes
+
+- name: Start redis
+  ansible.builtin.systemd_service:
+    name: shipping
+    state: started
+
+- name: Install mongosh
+  ansible.builtin.dnf:
+    name: mysql
+    state: installed
+
+- name: Load Schema, Schema in database is the structure to it like what tables to be created and their necessary application layouts.
+  ansible.builtin.command: /usr/bin/mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/schema.sql
+
+- name: Create app user, MySQL expects a password authentication, Hence we need to create the user in mysql database for shipping app to connect.
+  ansible.builtin.command: /usr/bin/mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/app-user.sql
+
+- name: Load Master Data, This includes the data of all the countries and their cities with distance to those cities.
+  ansible.builtin.command: /usr/bin/mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/master-data.sql
+
+- name: Start redis
+  ansible.builtin.systemd_service:
+    name: shipping
+    state: restarted
+
+
+
