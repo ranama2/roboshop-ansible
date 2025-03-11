@@ -1,2 +1,16 @@
 [test]
 172.31.94.140
+
+
+
+mongodb-dev.maksuduldevsecops.online
+cart-dev.maksuduldevsecops.online
+catalogue-dev.maksuduldevsecops.online
+dispatch-dev.maksuduldevsecops.online
+frontend-dev.maksuduldevsecops.online
+mysql-dev.maksuduldevsecops.online
+payment-dev.maksuduldevsecops.online
+rabbitmq-dev.maksuduldevsecops.online
+redis-dev.maksuduldevsecops.online
+shipping-dev.maksuduldevsecops.online
+user-dev.maksuduldevsecops.online
