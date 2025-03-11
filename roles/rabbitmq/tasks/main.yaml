@@ -1,0 +1,25 @@
+- name: Copy rabbit.repo file
+  ansible.builtin.copy:
+    src: rabbitmq.repo
+    dest: /etc/yum.repos.d/rabbitmq.repo
+
+- name: Install rabbitmq-server
+  ansible.builtin.dnf:
+    name: rabbitmq-server
+    state: installed
+
+- name: Enable rabbitmq-server
+  ansible.builtin.service:
+    name: rabbitmq-server
+    enabled: yes
+
+- name: Start rabbitmq-server
+  ansible.builtin.systemd_service:
+    name: rabbitmq-server
+    state: started
+
+- name: create one user for the application.
+  ansible.builtin.command: /usr/bin/rabbitmqctl add_user roboshop roboshop123
+
+- name: create one user for the application.
+  ansible.builtin.command: /usr/bin/rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
