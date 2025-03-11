@@ -1,30 +1,72 @@
-- name: Copy mongo.repo file
-  ansible.builtin.copy:
-    src: mongo.repo
-    dest: /etc/yum.repos.d/mongo.repo
+- name: Disable redis module
+  ansible.builtin.command: /usr/bin/dnf module disable redis -y
+
+- name: Enable redis:7 module
+  ansible.builtin.command: /usr/bin/dnf module enable redis:7 -y
 
 - name: Install mongodb
   ansible.builtin.dnf:
-    name: mongodb-org
+    name: redis
     state: installed
 
-- name: Enable mognodb
+- name: Replace old hostname with new hostname (requires Ansible >= 2.4)
+  ansible.builtin.replace:
+    path: /etc/redis/redis.conf
+    regexp: '127\.0\.0\.1'
+    replace: '0\.0\.0\.0'
+
+- name: Replace old hostname with new hostname (requires Ansible >= 2.4)
+  ansible.builtin.replace:
+    path: /etc/redis/redis.conf
+    regexp: 'protected-mode yes'
+    replace: 'protected-mode no'
+
+- name: Enable redis
   ansible.builtin.service:
-    name: mongod
+    name: redis
     enabled: yes
 
-- name: Start mongodb
+- name: Start redis
   ansible.builtin.systemd_service:
-    name: mongod
+    name: redis
     state: started
 
-- name: Replace a localhost entry to 0.0.0.0
-  ansible.builtin.lineinfile:
-    path: /etc/mongod.conf
-    search_string: '127.0.0.1'
-    line: 127.0.0.1 0.0.0.0
 
-- name: Restart mongod
-  ansible.builtin.systemd_service:
-    name: mongod
-    state: restarted
+
+
+
+
+
+
+
+
+#- name: Copy mongo.repo file
+#  ansible.builtin.copy:
+#    src: mongo.repo
+#    dest: /etc/yum.repos.d/mongo.repo
+#
+#- name: Install mongodb
+#  ansible.builtin.dnf:
+#    name: mongodb-org
+#    state: installed
+#
+#- name: Enable mognodb
+#  ansible.builtin.service:
+#    name: mongod
+#    enabled: yes
+#
+#- name: Start mongodb
+#  ansible.builtin.systemd_service:
+#    name: mongod
+#    state: started
+#
+#- name: Replace a localhost entry to 0.0.0.0
+#  ansible.builtin.lineinfile:
+#    path: /etc/mongod.conf
+#    search_string: '127.0.0.1'
+#    line: 127.0.0.1 0.0.0.0
+#
+#- name: Restart mongod
+#  ansible.builtin.systemd_service:
+#    name: mongod
+#    state: restarted
